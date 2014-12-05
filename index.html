@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="gb2312">
+<title>广东IPTV专区</title>
+<script type="text/javascript" src="jquery.js"></script>
+<style type="text/css">
+*{margin:0; padding:0; list-style:none;}
+.ggl{
+	position:relative;
+	top:100px;
+	left:200px;
+	width:300px;
+	height:50px;
+}
+
+.ggl-con, .ggl-layer{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	line-height:50px;
+	text-align:center;
+	cursor:pointer;
+}
+
+.ggl-con{
+	background:#ccc;
+}
+
+.ggl-block{
+	position:absolute;
+	float:left;
+	background:url(1.jpg);
+	background-position:0 0;
+	cursor:pointer;
+}
+</style>
+</style>
+</head>
+<body>
+	<div class="ggl">
+		<div class="ggl-con">刮开中奖</div>
+		<div class="ggl-layer"></div>
+	</div>
+</body>
+<script type="text/javascript">
+	function Ggl(options){
+		this.defaults = {
+			parent_class : ".ggl-layer",  //父元素
+			rows : 5,    //行数
+			cols : 20,   //列数
+			clear_percent : 0.8    //清除块占所有块的比例大于或者等于这个数时清除所有的块（表示刮完）
+		};
+		this.options = $.extend({}, this.defaults, options);
+		this.is_start = false;   //是否开始刮
+		this.is_finish = false;   //是否刮完
+		this.all_block = this.options.rows * this.options.cols;   //所有的块数
+		this.clear_times = 0;    //被清除的块数
+	}
+	
+	Ggl.prototype = {
+		init : function(){
+			var parent_ele = $(this.options.parent_class),
+				parent_width = parent_ele.width(),
+				parent_height = parent_ele.height(),
+				block_width = parseInt(parent_width / this.options.cols),
+				block_height = parseInt(parent_height / this.options.rows),
+				block_top = 0,
+				block_left = 0,
+				block_style;
+			for(var i = 0; i < this.options.rows; i++){
+				for(var j = 0; j < this.options.cols; j++){
+					block_top = i * block_height;
+					block_left = j * block_width;
+					block_style="top:"+block_top+"px; left:"+block_left+"px; width:"+block_width+"px; height:"+block_height+"px; background-position:"+(-block_left)+"px "+(-block_top)+"px;";
+					parent_ele.append('<div class="ggl-block" style="'+block_style+'"></div>');
+				}
+			}
+		},
+		
+		firstClick : function(){  //第一次点击触发弹窗用户填写资料
+			var parent_ele = $(this.options.parent_class);
+			if(!this.is_start){
+				
+			}
+		},
+		
+		setStart : function(is_start){   //设置是否开始
+			this.is_start = is_start;
+		},
+		
+		setFinish :function(is_finish){   //设置是否刮完
+			this.is_finish = is_finish;
+		},
+		
+		clearGgl : function(){   //清除刮刮乐块
+			var that = this;
+				parent_ele = $(that.options.parent_class);
+			if(that.is_start && !that.is_finish){
+				parent_ele.on('mousemove', '.ggl-block', function(e){
+					if(e.which == 1){  //按住鼠标左键才触发
+						$(this).remove();
+						++that.clear_times;
+						if((that.clear_times / that.all_block) >= that.options.clear_percent){
+							parent_ele.empty();
+							that.setFinish(true);
+							alert("刮完");
+						}
+					}
+					
+				});
+			}
+		}
+	}
+	
+	$(function(){
+		var ggl = new Ggl({
+			parent_class : ".ggl-layer",  //父元素
+			rows : 5,    //行数
+			cols : 20,   //列数
+			clear_percent : 0.4    //清除块占所有块的比例大于这个数时清除所有的块（表示刮完）
+		});
+		ggl.init();
+		ggl.setStart(true);
+		ggl.clearGgl();
+		
+		function AutoScroll(obj){
+			$(obj).find("ul").animate({
+				marginTop:"-25px"
+			},1000,function(){
+				$(this).css({marginTop:"0px"}).find("li:first").appendTo(this);
+			});
+		}
+
+		setInterval('AutoScroll("#scrollDiv")',2000);
+
+	});
+</script>
+</html>
